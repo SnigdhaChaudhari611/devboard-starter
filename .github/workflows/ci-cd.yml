@@ -1,0 +1,20 @@
+# Goal: To run a dockerized application using GitHub Actions 
+
+name: CI/CD Deployment
+
+on:
+  workflow_call:
+
+jobs:
+  code:
+      uses: ./.github/workflows/lint.yml
+
+  build-and-push:
+      secrets: inherit
+      needs: code
+      uses: ./.github/workflows/ci.yml
+
+  deploy:
+      secrets: inherit
+      needs: build-and-push
+      uses: ./.github/workflows/cd.yml
