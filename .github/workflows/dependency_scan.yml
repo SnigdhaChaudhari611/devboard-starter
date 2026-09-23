@@ -1,4 +1,4 @@
-# Goal: To scan the dependencies / libraries installed
+# Goal: To scan the dependencies/libraries installed
 name: Dependency Scan
 
 on:
@@ -11,8 +11,24 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      
-      - name: install dependencies
-        run: npm ci
-      
-      - uses: oke-py/npm-audit-action@v5
+
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=high
+        
+  backend-dependency-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+
+      - name: Scan Go dependencies
+        working-directory: backend
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
