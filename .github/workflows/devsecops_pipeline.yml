@@ -1,0 +1,31 @@
+# Goal: Implement shift left, i.e., DevSecOps end-to-end for this project.
+
+name: DevSecOps
+
+on: 
+  push:
+
+jobs:
+
+  # Secrets Scan
+  secret_scan:
+      uses: ./.github/workflows/secret_scanning.yml
+      
+  # Code
+  code:
+      uses: ./.github/workflows/lint.yml
+      
+  #Build
+#  build-and-push:
+      # secrets: inherit
+      # needs: code
+      # uses: ./.github/workflows/ci.yml
+
+  # Test
+  # deploy:
+  #     secrets: inherit
+  #     needs: build-and-push
+  #     uses: ./.github/workflows/cd.yml
+
+
+
