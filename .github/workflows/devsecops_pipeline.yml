@@ -10,7 +10,7 @@ jobs:
   # Secrets Scan
   secret_scan:
       uses: ./.github/workflows/secret_scanning.yml
-      
+      secrets: inherit
   # Code
   code:
       uses: ./.github/workflows/lint.yml
