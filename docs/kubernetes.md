@@ -16,6 +16,7 @@ the exact same cluster):
 | Gateway API | `v1` (standard channel) |
 | Envoy Gateway | `v1.9.1` |
 
+
 ## 0. Which Kubernetes version, and why it matters
 
 Kubernetes ships a new minor version roughly every 4 months, each with a
