@@ -2,8 +2,7 @@ name: Docker Build & Push
 
 on:
   push:
-    tags: ["v*.*.*"]
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
   docker-build:
