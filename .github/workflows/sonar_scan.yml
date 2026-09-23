@@ -1,0 +1,18 @@
+# Goal: To scan the SAST code and other code-related issues using SonarQube
+
+name: Sonar Scan
+
+on:
+  workflow_call:
+
+jobs:
+  sast_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v7
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8.2.2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
