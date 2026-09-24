@@ -33,6 +33,11 @@ jobs:
     needs: dependency_scan
     uses: ./.github/workflows/trivy_scans.yml
 
+  # Push
+  push:
+    needs: build-and-scan
+    uses: ./.github/workflows/docker_push.yml 
+    secrets: inherit
 
   # Test
   # deploy:
