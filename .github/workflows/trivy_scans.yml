@@ -1,0 +1,46 @@
+# Goal: Scan the docker Image before pushing to the registry
+
+on:
+  workflow_call:
+    
+jobs:
+  trivy_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          push: false
+          tags: "${{ vars.DOCKERHUB_USERNAME }}/devboard-frontend:latest"
+          load: true
+      
+      - name: Build Backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          push: false
+          tags: "${{ vars.DOCKERHUB_USERNAME }}/devboard-backend:latest"
+          load: true
+
+      - name: Trivy Scan  
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: "${{ vars.DOCKERHUB_USERNAME }}/devboard-frontend:latest"
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL'

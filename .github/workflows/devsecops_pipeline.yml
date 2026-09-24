@@ -16,7 +16,7 @@ jobs:
       needs: secret_scan
       uses: ./.github/workflows/lint.yml
 
-  # SAST
+  # SAST Scan
   sast:
     needs: code
     uses: ./.github/workflows/sonar_scan.yml
@@ -27,11 +27,12 @@ jobs:
     needs: sast
     uses: ./.github/workflows/dependency_scan.yml
     
-  #Build
-#  build-and-push:
-      # secrets: inherit
-      # needs: code
-      # uses: ./.github/workflows/ci.yml
+  # Build and Scan
+  build-and-scan:
+    secrets: inherit
+    needs: code
+    uses: ./.github/workflows/trivy_scans.yml
+
 
   # Test
   # deploy:
