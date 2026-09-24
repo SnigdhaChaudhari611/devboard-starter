@@ -34,16 +34,20 @@ jobs:
     uses: ./.github/workflows/trivy_scans.yml
 
   # Push
-  push:
+  docker_push:
     needs: build-and-scan
     uses: ./.github/workflows/docker_push.yml 
     secrets: inherit
 
-  # Test
-  # deploy:
-  #     secrets: inherit
-  #     needs: build-and-push
-  #     uses: ./.github/workflows/cd.yml
+  # Deploy
+  deploy:
+      secrets: inherit
+      needs: docker_push
+      uses: ./.github/workflows/cd.yml
 
-
+  # DAST Scan (Shift right)
+  dast:
+      secrets: inherit
+      needs: deploy
+      uses: ./.github/workflows/dast.yml  
 
