@@ -1,0 +1,30 @@
+# goal: Push Docker images to Docker Hub after/ ECR / GCP Artifact Registry / GHCR
+
+name: Docker Push
+
+on:
+  workflow_call:
+
+jobs:
+  docker_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7 
+
+      - name: Docker Setup
+        uses: docker/setup-docker-action@v5
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        
+      - name: Docker Push
+        runs: |
+          docker push ${{ vars.DOCKERHUB_USERNAME }}/devboard-frontend:latest
+          docker push ${{ vars.DOCKERHUB_USERNAME }}/devboard-backend:latest
