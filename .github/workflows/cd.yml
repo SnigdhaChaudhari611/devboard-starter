@@ -1,28 +1,47 @@
-# Goal: To deploy the built images from CI Steps once the CI Worklow is Succeeded
+# Goal: Deploy the built images once the CI steps succeed
 
 name: CD
 
-on: 
-    workflow_call:
+on:
+  workflow_call:
 
 jobs:
-    deploy:
-        
-        runs-on: self-hosted
-        steps:
-            - name: Code Checkout
-              uses: actions/checkout@v7
+  deploy:
+    runs-on: self-hosted
+    env:
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-            - name: Copy Example Env to main env
-              run: cp .env.example .env
+      - name: Create .env from GitHub secrets and variables
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        run: |
+          cat > .env <<EOF
+          POSTGRES_USER=$POSTGRES_USER
+          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          POSTGRES_DB=$POSTGRES_DB
+          POSTGRES_HOST_PORT=${{ vars.POSTGRES_HOST_PORT }}
+          BACKEND_PORT=${{ vars.BACKEND_PORT }}
+          BACKEND_HOST_PORT=${{ vars.BACKEND_HOST_PORT }}
+          FRONTEND_HOST_PORT=${{ vars.FRONTEND_HOST_PORT }}
+          IMAGE_TAG=$IMAGE_TAG
+          EOF
+          chmod 600 .env
 
-            - name: Docker Setup [Login]
-              uses: docker/login-action@v4
-              with:
-                username: ${{ vars.DOCKERHUB_USERNAME }}
-                password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker Login
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            - name: Deploy the containers with Docker Compose
-              run: |
-                docker compose pull
-                docker compose up -d
+      - name: Deploy the containers with Docker Compose
+        run: |
+          docker compose pull
+          docker compose up -d
+          docker image prune -f
